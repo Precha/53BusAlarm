@@ -81,21 +81,13 @@
                             let minutes;
                             let arrivalTimeText = '';
 
-                            if (arr) {
-                                minutes = Math.max(Math.round((arr - now) / (1000 * 60)), 0);
-                                const hh = String(arr.getHours()).padStart(2, '0');
-                                const mm = String(arr.getMinutes()).padStart(2, '0');
-                                arrivalTimeText = ` (${hh}:${mm})`;
-                            } else {
-                                // Fall back to departure time if arrival not provided
-                                const dep = new Date(step.transit.departure_time.value);
-                                minutes = Math.max(Math.round((dep - now) / (1000 * 60)), 0);
-                                const hh = String(dep.getHours()).padStart(2, '0');
-                                const mm = String(dep.getMinutes()).padStart(2, '0');
-                                arrivalTimeText = ` (${hh}:${mm})`;
-                            }
+                            const dep = new Date(step.transit.departure_time.value);
+                            minutes = Math.max(Math.round((dep - now) / (1000 * 60)), 0);
+                            const hh = String(dep.getHours()).padStart(2, '0');
+                            const mm = String(dep.getMinutes()).padStart(2, '0');
+                            const departureTimeText = ` (${hh}:${mm})`;
 
-                            setResult(`53號捷運下一班在 ${minutes} 分鐘後到站${arrivalTimeText}`);
+                            setResult(`53號捷運下一班在 ${minutes} 分鐘後${departureTimeText} 從 Weesperplein 發車`);
                             found = true;
                             break;
                         }
