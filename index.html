@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>53 Metro Alarm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>53號捷運到站提醒</h1>
+    <p>當你到達Weesperplein站時，點擊按鈕檢查下一班往Diemen Zuid的53號車。</p>
+    <button onclick="checkNextTrain()">檢查下一班車</button>
+    <div id="result"></div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAvMDYki_qFCty3RWugWg8uUqHqMqZ7hUo&callback=initService&libraries=places" async defer></script>
+    <script>
+        let directionsService;
+
+        function setResult(text) {
+            document.getElementById('result').innerText = text;
+        }
+
+        function initService() {
+            directionsService = new google.maps.DirectionsService();
+            setResult('準備就緒，請點擊按鈕檢查下一班車。');
+        }
+
+        function checkNextTrain() {
+            setResult('正在檢查...');
+
+            directionsService.route({
+                origin: 'Weesperplein, Amsterdam',
+                destination: 'Diemen Zuid, Amsterdam',
+                travelMode: 'TRANSIT',
+                transitOptions: { modes: ['SUBWAY'], departureTime: new Date() },
+            }, (response, status) => {
+                if (status !== 'OK') {
+                    setResult(`路線查詢失敗：${status}`);
+                    return;
+                }
+
+                if (!response.routes || response.routes.length === 0) {
+                    setResult('無可用路線。');
+                    return;
+                }
+
+                const route = response.routes[0];
+                const leg = route.legs[0];
+                let found = false;
+
+                for (const step of leg.steps) {
+                    if (step.travel_mode === 'TRANSIT' && step.transit && step.transit.line && step.transit.line.short_name) {
+                        const lineName = step.transit.line.short_name;
+                        if (lineName.includes('53')) {
+                            const arr = step.transit.arrival_time ? new Date(step.transit.arrival_time.value) : null;
+                            const now = new Date();
+                            let minutes;
+                            let arrivalTimeText = '';
+
+                            if (arr) {
+                                minutes = Math.max(Math.round((arr - now) / (1000 * 60)), 0);
+                                const hh = String(arr.getHours()).padStart(2, '0');
+                                const mm = String(arr.getMinutes()).padStart(2, '0');
+                                arrivalTimeText = ` (${hh}:${mm})`;
+                            } else {
+                                // Fall back to departure time if arrival not provided
+                                const dep = new Date(step.transit.departure_time.value);
+                                minutes = Math.max(Math.round((dep - now) / (1000 * 60)), 0);
+                                const hh = String(dep.getHours()).padStart(2, '0');
+                                const mm = String(dep.getMinutes()).padStart(2, '0');
+                                arrivalTimeText = ` (${hh}:${mm})`;
+                            }
+
+                            setResult(`53號捷運下一班在 ${minutes} 分鐘後到站${arrivalTimeText}`);
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!found) {
+                    const firstTransit = leg.steps.find(s => s.travel_mode === 'TRANSIT' && s.transit && s.transit.line);
+                    if (firstTransit) {
+                        setResult(`沒找到53號，建議搭 ${firstTransit.transit.line.short_name} (${firstTransit.transit.line.vehicle.type})`);
+                    } else {
+                        setResult('無可用轉乘資訊。');
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
