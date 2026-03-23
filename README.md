@@ -57,4 +57,15 @@ python server.py
 3. 將`index.html`上傳到任何web服務器（如GitHub Pages）
 4. 在iPhone的Safari中打開URL
 
+## 發佈到GitHub Pages
+
+1. 創建GitHub倉庫並推送代碼
+2. 在GitHub倉庫設定中啟用Pages：
+   - 前往 Settings > Pages
+   - Source 選擇 "Deploy from a branch"
+   - Branch 選擇 "gh-pages" 
+   - 點擊 Save
+3. 等待部署完成（通常需要幾分鐘）
+4. 你的網站URL會是：`https://你的GitHub帳號.github.io/53BusAlarm`
+
 注意：Google Maps API可能有使用限制和費用。請檢查Google的定價。
