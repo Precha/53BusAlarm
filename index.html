@@ -99,7 +99,17 @@
                             const mm = String(dep.getMinutes()).padStart(2, '0');
                             const departureTimeText = ` (${hh}:${mm})`;
 
-                            setResult(`53號捷運下一班在 ${minutes} 分鐘後${departureTimeText} 從 Weesperplein 發車`);
+                            const resultMessage = `53號捷運下一班在 ${minutes} 分鐘後${departureTimeText} 從 Weesperplein 發車`;
+                            setResult(resultMessage);
+
+                            if (minutes <= 3) {
+                                document.body.style.backgroundColor = '#ffcccc';
+                                setResult(`🔥 <strong>跑起來！</strong>\n${resultMessage}`);
+                            } else {
+                                document.body.style.backgroundColor = '#ccffcc';
+                                setResult(`🐢 慢慢來\n${resultMessage}`);
+                            }
+
                             found = true;
                             break;
                         }
